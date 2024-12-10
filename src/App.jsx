@@ -1,8 +1,12 @@
 import React from 'react'
+import OceanPollutionPlatform from './components/OceanPollutionPlatform'
 
 const App = () => {
   return (
-    <div>App</div>
+    <div>
+      <OceanPollutionPlatform />
+    
+    </div>
   )
 }
 
