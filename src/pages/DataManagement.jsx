@@ -1,29 +1,29 @@
-import { useState } from 'react';
-import { Database, Filter, Download, Trash2 } from 'lucide-react';
+import { Download, Filter, Trash2 } from "lucide-react";
+import { useState } from "react";
 
 const DataManagement = () => {
   const [datasets] = useState([
     {
       id: 1,
-      name: 'Coastal Pollution Data 2024',
-      type: 'Pollution Analysis',
-      size: '2.5 GB',
+      name: "Coastal Pollution Data 2024",
+      type: "Pollution Analysis",
+      size: "2.5 GB",
       lastUpdated: new Date(),
-      status: 'active'
+      status: "active",
     },
     {
       id: 2,
-      name: 'Microplastics Distribution',
-      type: 'Research Data',
-      size: '1.8 GB',
+      name: "Microplastics Distribution",
+      type: "Research Data",
+      size: "1.8 GB",
       lastUpdated: new Date(Date.now() - 86400000),
-      status: 'archived'
+      status: "archived",
     },
     // Add more datasets as needed
   ]);
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="container mx-auto pt-16 p-6">
       <div className="bg-white rounded-lg shadow p-6">
         <h2 className="text-2xl font-bold mb-6">Data Management</h2>
 
@@ -53,16 +53,28 @@ const DataManagement = () => {
           <table className="min-w-full divide-y divide-gray-200">
             <thead>
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Size</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Last Updated</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Name
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Type
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Size
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Last Updated
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Status
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {datasets.map(dataset => (
+              {datasets.map((dataset) => (
                 <tr key={dataset.id}>
                   <td className="px-6 py-4">{dataset.name}</td>
                   <td className="px-6 py-4">{dataset.type}</td>
@@ -71,9 +83,13 @@ const DataManagement = () => {
                     {new Date(dataset.lastUpdated).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4">
-                    <span className={`px-2 py-1 rounded-full text-xs ${
-                      dataset.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                    }`}>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs ${
+                        dataset.status === "active"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-gray-100 text-gray-800"
+                      }`}
+                    >
                       {dataset.status}
                     </span>
                   </td>
@@ -97,4 +113,4 @@ const DataManagement = () => {
   );
 };
 
-export default DataManagement
+export default DataManagement;

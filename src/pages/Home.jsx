@@ -1,16 +1,15 @@
-// pages/Home.jsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { MapContainer, TileLayer, Circle, Popup } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import { ArrowRight, Info } from 'lucide-react';
+import { MapContainer, TileLayer, Circle, Popup } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import { ArrowRight, Info } from "lucide-react";
 
 const Home = () => {
   const [pollutionSpots, setPollutionSpots] = useState([]);
   const [stats, setStats] = useState({
     areasScanned: 0,
     pollutionDetected: 0,
-    accuracyRate: 0
+    accuracyRate: 0,
   });
 
   // Simulate pollution spots
@@ -19,10 +18,12 @@ const Home = () => {
       id: Math.random(),
       position: [
         Math.random() * (50 - 20) + 20,
-        Math.random() * (130 - 100) + 100
+        Math.random() * (130 - 100) + 100,
       ],
       severity: Math.random() * 100,
-      type: ['Microplastics', 'Chemical', 'Oil Spill'][Math.floor(Math.random() * 3)]
+      type: ["Microplastics", "Chemical", "Oil Spill"][
+        Math.floor(Math.random() * 3)
+      ],
     }));
     setPollutionSpots(spots);
   }, []);
@@ -30,10 +31,10 @@ const Home = () => {
   // Animate stats
   useEffect(() => {
     const interval = setInterval(() => {
-      setStats(prev => ({
+      setStats((prev) => ({
         areasScanned: Math.min(prev.areasScanned + 1, 150),
         pollutionDetected: Math.min(prev.pollutionDetected + 1, 85),
-        accuracyRate: Math.min(prev.accuracyRate + 1, 95)
+        accuracyRate: Math.min(prev.accuracyRate + 1, 95),
       }));
     }, 50);
 
@@ -41,7 +42,7 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-blue-100">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-blue-100 pt-16">
       {/* Hero Section */}
       <section className="container mx-auto px-6 py-16">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -50,17 +51,18 @@ const Home = () => {
               Ocean Pollution Detection Platform
             </h1>
             <p className="text-xl mb-8 text-gray-700">
-              Advanced satellite and drone imagery analysis for detecting ocean pollution patterns
+              Advanced satellite and drone imagery analysis for detecting ocean
+              pollution patterns
             </p>
             <div className="flex space-x-4">
-              <Link 
-                to="/dashboard" 
+              <Link
+                to="/dashboard"
                 className="bg-blue-600 text-white px-8 py-3 rounded-lg flex items-center hover:bg-blue-700 transition-colors"
               >
                 Get Started
                 <ArrowRight className="ml-2" />
               </Link>
-              <a 
+              <a
                 href="#demo"
                 className="bg-white text-blue-600 px-8 py-3 rounded-lg flex items-center hover:bg-gray-50 transition-colors"
               >
@@ -96,28 +98,38 @@ const Home = () => {
 
       {/* Interactive Map Section */}
       <section id="demo" className="container mx-auto px-6 py-16">
-        <h2 className="text-3xl font-bold mb-8 text-center">Live Pollution Detection Demo</h2>
+        <h2 className="text-3xl font-bold mb-8 text-center">
+          Live Pollution Detection Demo
+        </h2>
         <div className="h-[500px] rounded-lg overflow-hidden shadow-lg">
           <MapContainer
             center={[35, 115]}
             zoom={4}
-            style={{ height: '100%', width: '100%' }}
+            style={{ height: "100%", width: "100%" }}
           >
             <TileLayer
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              attribution='&copy; OpenStreetMap'
+              attribution="&copy; OpenStreetMap"
             />
-            {pollutionSpots.map(spot => (
+            {pollutionSpots.map((spot) => (
               <Circle
                 key={spot.id}
                 center={spot.position}
                 radius={50000}
                 pathOptions={{
-                  color: spot.severity > 66 ? 'red' : 
-                         spot.severity > 33 ? 'yellow' : 'green',
-                  fillColor: spot.severity > 66 ? 'red' : 
-                            spot.severity > 33 ? 'yellow' : 'green',
-                  fillOpacity: 0.4
+                  color:
+                    spot.severity > 66
+                      ? "red"
+                      : spot.severity > 33
+                      ? "yellow"
+                      : "green",
+                  fillColor:
+                    spot.severity > 66
+                      ? "red"
+                      : spot.severity > 33
+                      ? "yellow"
+                      : "green",
+                  fillOpacity: 0.4,
                 }}
               >
                 <Popup>
