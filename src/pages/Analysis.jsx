@@ -7,7 +7,7 @@ const Analysis = () => {
   const [analysisData, setAnalysisData] = useState(null);
 
   return (
-    <div className="container mx-auto pt-16 p-6">
+    <div className="container mx-auto pt-20 p-6">
       <div className="grid grid-cols-12 gap-6">
         <div className="col-span-3">
           <DataFilters onFilterChange={(filters) => console.log(filters)} />

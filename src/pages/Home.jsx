@@ -4,6 +4,8 @@ import { MapContainer, TileLayer, Circle, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { ArrowRight, Info } from "lucide-react";
 
+/* eslint-disable no-unused-vars */
+
 const Home = () => {
   const [pollutionSpots, setPollutionSpots] = useState([]);
   const [stats, setStats] = useState({
@@ -25,7 +27,19 @@ const Home = () => {
         Math.floor(Math.random() * 3)
       ],
     }));
-    setPollutionSpots(spots);
+    // setPollutionSpots(spots);
+    setPollutionSpots([
+      { id: 1, position: [8.4, 78.1], type: "Plastic", severity: 75 }, // Gulf of Mannar
+      { id: 2, position: [15.2, 73.8], type: "Chemical", severity: 45 }, // Arabian Sea (Goa)
+      { id: 3, position: [21.7, 88.4], type: "Oil", severity: 85 }, // Bay of Bengal
+      { id: 4, position: [12.9, 80.2], type: "Plastic", severity: 60 }, // Chennai Coast
+      { id: 5, position: [18.9, 72.8], type: "Chemical", severity: 70 }, // Mumbai Coast
+      { id: 6, position: [5.0, 75.0], type: "Plastic", severity: 65 },
+      { id: 7, position: [0.0, 80.0], type: "Oil", severity: 90 },
+      { id: 8, position: [2.5, 85.0], type: "Chemical", severity: 55 },
+      { id: 9, position: [-5.0, 75.0], type: "Plastic", severity: 75 },
+      { id: 10, position: [-2.5, 90.0], type: "Oil", severity: 80 },
+    ]);
   }, []);
 
   // Animate stats
@@ -103,9 +117,10 @@ const Home = () => {
         </h2>
         <div className="h-[500px] rounded-lg overflow-hidden shadow-lg">
           <MapContainer
-            center={[35, 115]}
+            center={[20.5937, 78.9629]}
             zoom={4}
             style={{ height: "100%", width: "100%" }}
+            attributionControl={false}
           >
             <TileLayer
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -118,15 +133,15 @@ const Home = () => {
                 radius={50000}
                 pathOptions={{
                   color:
-                    spot.severity > 66
+                    spot.severity > 75
                       ? "red"
-                      : spot.severity > 33
+                      : spot.severity > 55
                       ? "yellow"
                       : "green",
                   fillColor:
-                    spot.severity > 66
+                    spot.severity > 75
                       ? "red"
-                      : spot.severity > 33
+                      : spot.severity > 55
                       ? "yellow"
                       : "green",
                   fillOpacity: 0.4,
