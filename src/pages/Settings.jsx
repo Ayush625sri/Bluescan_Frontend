@@ -9,8 +9,8 @@ const Settings = () => (
       <h2 className="text-2xl font-bold mb-6">Platform Settings</h2>
       <form className="space-y-6">
         <AccountSettings />
-        <NotificationSettings />
-        <AnalysisPreferences />
+        {/* <NotificationSettings /> */}
+        {/* <AnalysisPreferences /> */}
         {/* <APIConfiguration /> */}
       </form>
     </div>

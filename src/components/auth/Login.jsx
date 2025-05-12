@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Mail, Lock } from 'lucide-react';
 import InputField from './InputField';
 import SocialLogin from './SocialLogin';
@@ -7,6 +7,7 @@ import { useAuth } from '../../contexts/AuthContext';
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
@@ -15,6 +16,9 @@ const Login = () => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+
+  // Get the redirect path from location state or use default
+  const from = location.state?.from?.pathname || '/dashboard';
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -59,8 +63,8 @@ const Login = () => {
 
     try {
       setLoading(true);
-      await login(formData);
-      navigate('/dashboard');
+      await login(formData, navigate);
+      // Note: Navigation is handled in the login function
     } catch (error) {
       setErrors({
         general: error.message || 'Failed to login. Please try again.'

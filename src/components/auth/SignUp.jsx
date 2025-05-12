@@ -9,12 +9,10 @@ const SignUp = () => {
   const navigate = useNavigate();
   const { signup } = useAuth();
   const [formData, setFormData] = useState({
-    fullName: '',
+    full_name: '',
     email: '',
     password: '',
-    confirmPassword: '',
-    organization: '',
-    role: ''
+    confirmPassword: ''
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -35,8 +33,8 @@ const SignUp = () => {
     try {
       setError('');
       setLoading(true);
-      await signup(formData);
-      navigate('/dashboard');
+      await signup(formData, navigate);
+      // Note: Navigation is handled in the signup function
     } catch (err) {
       setError('Failed to create an account: ' + err.message);
     } finally {
@@ -64,9 +62,9 @@ const SignUp = () => {
             <InputField
               label="Full Name"
               type="text"
-              name="fullName"
+              name="full_name"
               required
-              value={formData.fullName}
+              value={formData.full_name}
               onChange={handleChange}
             />
 
@@ -96,32 +94,6 @@ const SignUp = () => {
               value={formData.confirmPassword}
               onChange={handleChange}
             />
-
-            <InputField
-              label="Organization"
-              type="text"
-              name="organization"
-              value={formData.organization}
-              onChange={handleChange}
-            />
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Role
-              </label>
-              <select
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                className="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="">Select a role</option>
-                <option value="researcher">Researcher</option>
-                <option value="analyst">Analyst</option>
-                <option value="administrator">Administrator</option>
-                <option value="observer">Observer</option>
-              </select>
-            </div>
 
             <div>
               <button
