@@ -56,23 +56,28 @@ const Login = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (!validateForm()) return;
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  
+  if (!validateForm()) return;
 
-    try {
-      setLoading(true);
-      await login(formData, navigate);
-      // Note: Navigation is handled in the login function
-    } catch (error) {
-      setErrors({
-        general: error.message || 'Failed to login. Please try again.'
-      });
-    } finally {
-      setLoading(false);
+  try {
+    setLoading(true);
+    // Login and get user data
+    const userData = await login(formData, navigate);
+    
+    // Establish session connection after successful login
+    if (userData && userData.id) {
+      establishSessionConnection(userData.id, localStorage.getItem('token'));
     }
-  };
+  } catch (error) {
+    setErrors({
+      general: error.message || 'Failed to login. Please try again.'
+    });
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleSocialLogin = async (provider) => {
     try {

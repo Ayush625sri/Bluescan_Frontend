@@ -2,7 +2,7 @@ import axios from 'axios';
 import EventEmitter from 'events';
 export const eventEmitter = new EventEmitter();
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ||'http://localhost:5000/api/v1'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api/v1'
 console.log(import.meta.env.VITE_API_BASE_URL)
 // Constants
 const AUTH_ERRORS = {
@@ -319,7 +319,7 @@ export const authApi = {
     formData.append('username', credentials.email);
     formData.append('password', credentials.password);
 
-    return apiClient.post('/auth/login', formData, { 
+    return apiClient.post('/auth/login', formData, {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded'
       }
@@ -332,10 +332,10 @@ export const authApi = {
    */
   verifyEmail: (token) => {
     return apiGet({
-    url: `/auth/verify-email`, 
-    params: `?token=${token}`,  // Send token as URL parameter
-    auth: false
-  });
+      url: `/auth/verify-email`,
+      params: `?token=${token}`,  // Send token as URL parameter
+      auth: false
+    });
   },
 
   /**
@@ -395,16 +395,94 @@ export const authApi = {
       auth: true
     });
   },
-  
+
   /**
    * Resend verification email
    * @param {string} email - User email
    */
   resendVerification: (email) => {
     return apiPost({
-      url: '/auth/resend-verification', 
+      url: '/auth/resend-verification',
       payload: { email },
       auth: false
+    });
+  }
+};
+
+// Add to your api.js file
+
+export const sessionApi = {
+  /**
+   * Get active and recent sessions
+   */
+  getActiveSessions: () => {
+    return apiGet({
+      url: '/session/active',
+      auth: true
+    });
+  },
+
+  /**
+   * Request a new session with a device
+   * @param {string} deviceId - Target device ID
+   */
+  requestSession: (deviceId) => {
+    return apiPost({
+      url: '/session/request',
+      payload: { device_id: deviceId },
+      auth: true
+    });
+  },
+
+  /**
+   * Respond to a session request
+   * @param {string} sessionId - Session ID
+   * @param {boolean} accepted - Whether the request was accepted
+   */
+  respondToSession: (sessionId, accepted) => {
+    return apiPost({
+      url: '/session/respond',
+      payload: { session_id: sessionId, accepted },
+      auth: true
+    });
+  },
+
+  /**
+   * End an active session
+   * @param {string} sessionId - Session ID
+   */
+  endSession: (sessionId) => {
+    return apiPost({
+      url: `/session/${sessionId}/end`,
+      auth: true
+    });
+  },
+
+  /**
+   * Upload an image from a session
+   * @param {string} sessionId - Session ID
+   * @param {File} imageFile - Image file to upload
+   */
+  uploadSessionImage: (sessionId, imageFile) => {
+    const formData = new FormData();
+    formData.append('image', imageFile);
+
+    return apiPost({
+      url: `/session/${sessionId}/images`,
+      payload: formData,
+      auth: true,
+      contentType: 'multipart/form-data'
+    });
+  },
+
+  /**
+   * Get session images
+   * @param {string} sessionId - Session ID
+   */
+  getSessionImages: (sessionId) => {
+    return apiGet({
+      url: `/session/${sessionId}/images`,
+      auth: true
     });
   }
 };

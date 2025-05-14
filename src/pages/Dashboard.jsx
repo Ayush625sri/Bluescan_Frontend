@@ -19,7 +19,7 @@ const Dashboard = () => {
         </div>
         <div className="grid col-span-4 gap-6">
           <HotspotsList />
-          <ImageUploader />
+          {/* <ImageUploader /> */}
         </div>
       </div>
       {/* <div className="grid grid-cols-1 mt-6">

@@ -16,6 +16,7 @@ const Alerts = lazy(() => import("../pages/Alerts"));
 const DataManagement = lazy(() => import("../pages/DataManagement"));
 const ImageUpload = lazy(() => import("../pages/ImageUpload"));
 const OceanPollutionPlatform = lazy(() => import("../pages/OceanPollutionPlatform"));
+const LiveSessionDashboard = lazy(() => import("../pages/LiveSessionDashboard"));
 
 // New authentication pages
 const VerificationRequired = lazy(() => import("../components/auth/VerificationRequired"));
@@ -50,7 +51,7 @@ const ProtectedRoute = ({ children }) => {
 const GuestRoute = ({ children }) => {
   const { user, loading } = useAuth();
   const location = useLocation();
-  
+
   // Get the intended destination after login, or default to dashboard
   const from = location.state?.from?.pathname || '/dashboard';
 
@@ -79,7 +80,7 @@ const AppRoutes = () => {
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Home />} />
-        
+
         {/* Auth routes that require guest (not logged in) */}
         <Route path="/login" element={
           <GuestRoute>
@@ -91,7 +92,7 @@ const AppRoutes = () => {
             <SignUp />
           </GuestRoute>
         } />
-        
+
         {/* New authentication related routes */}
         <Route path="/verification-required" element={<VerificationRequired />} />
         <Route path="/verify-email" element={<EmailVerification />} />
@@ -109,43 +110,49 @@ const AppRoutes = () => {
             <Dashboard />
           </ProtectedRoute>
         } />
-        
+
         <Route path="/analysis" element={
           <ProtectedRoute>
             <Analysis />
           </ProtectedRoute>
         } />
-        
+
+        <Route path="/sessions" element={
+          <ProtectedRoute>
+            <LiveSessionDashboard />
+          </ProtectedRoute>
+        } />
+
         <Route path="/reports" element={
           <ProtectedRoute>
             <Reports />
           </ProtectedRoute>
         } />
-        
+
         <Route path="/settings" element={
           <ProtectedRoute>
             <Settings />
           </ProtectedRoute>
         } />
-        
+
         <Route path="/ocean-pollution" element={
           <ProtectedRoute>
             <OceanPollutionPlatform />
           </ProtectedRoute>
         } />
-        
+
         <Route path="/upload" element={
           <ProtectedRoute>
             <ImageUpload />
           </ProtectedRoute>
         } />
-        
+
         <Route path="/alerts" element={
           <ProtectedRoute>
             <Alerts />
           </ProtectedRoute>
         } />
-        
+
         <Route path="/data" element={
           <ProtectedRoute>
             <DataManagement />

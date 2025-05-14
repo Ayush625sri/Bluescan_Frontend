@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { MapPin, BarChart2, Settings, LogOut, User, LogIn } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
+import SessionStatus from './SessionStatus';
 import toast from "react-hot-toast";
 
 const Navbar = () => {
@@ -10,7 +11,7 @@ const Navbar = () => {
   const handleLogout = async () => {
     try {
       await logout(navigate);
- 
+
     } catch (error) {
       console.error("Logout error:", error);
       toast.error("Failed to logout. Please try again.");
@@ -26,7 +27,7 @@ const Navbar = () => {
               <img src="/bluescan.png" alt="Logo" className="h-14 w-52" />
             </Link>
           </div>
-          
+
           {user ? (
             <div className="flex items-center space-x-4 ml-auto">
               <Link
@@ -57,13 +58,18 @@ const Navbar = () => {
                 <User className="h-5 w-5 mr-1" />
                 {user.full_name?.split(' ')[0] || 'Profile'}
               </Link>
-              <button 
+              <button
                 onClick={handleLogout}
                 className="flex items-center px-3 py-2 rounded-md text-gray-700 hover:text-red-600 transition duration-150"
               >
                 <LogOut className="h-5 w-5 mr-1" />
                 Logout
               </button>
+              {user && (
+                <div className="ml-4 border-l pl-4">
+                  <SessionStatus />
+                </div>
+              )}
             </div>
           ) : (
             <div className="flex items-center space-x-4 ml-auto">
@@ -73,7 +79,7 @@ const Navbar = () => {
               >
                 Login
                 <LogIn className="h-5 w-5 mx-1" />
-              </Link> 
+              </Link>
             </div>
           )}
         </div>
