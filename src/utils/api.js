@@ -2,7 +2,7 @@ import axios from 'axios';
 import EventEmitter from 'events';
 export const eventEmitter = new EventEmitter();
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api/v1'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
 console.log(import.meta.env.VITE_API_BASE_URL)
 // Constants
 const AUTH_ERRORS = {
@@ -41,6 +41,7 @@ const createRequestConfig = (method, authRequired, logiRequired, socketId = null
       'Access-Control-Allow-Origin': '*',
       'Authorization': authToken,
       'logi_token': logiToken,
+      'ngrok-skip-browser-warning': 'true',
       ...socketValue
     },
     params,
