@@ -13,8 +13,29 @@ export const SessionProvider = ({ children }) => {
   const [pendingRequests, setPendingRequests] = useState([]);
   const [activeDevices, setActiveDevices] = useState([]);
   const [activeSession, setActiveSession] = useState(null);
+  const [activeSessions, setActiveSessions] = useState([]);
+  const [endedSessions, setEndedSessions] = useState([]);
   const reconnectTimeoutRef = useRef(null);
   
+  // Load session data from API
+  const loadSessionData = async () => {
+    try {
+      const response = await sessionApi.getActiveSessions();
+      const data = response.data;
+      
+      setPendingRequests(data.pending_requests || []);
+      setActiveSessions(data.active_sessions || []);
+      setEndedSessions(data.ended_sessions || []);
+      
+      // Set current active session if any
+      if (data.active_sessions && data.active_sessions.length > 0) {
+        setActiveSession(data.active_sessions[0]); // Take first active session
+      }
+    } catch (error) {
+      console.error('Failed to load session data:', error);
+    }
+  };
+
   // WebSocket Connection Management
   const connectWebSocket = () => {
     if (!user || !user.id) return;
@@ -34,6 +55,7 @@ export const SessionProvider = ({ children }) => {
       console.log('WebSocket connected');
       setConnected(true);
       sendDeviceInfo(ws);
+      loadSessionData(); // Load initial data
     };
     
     ws.onclose = (e) => {
@@ -65,7 +87,6 @@ export const SessionProvider = ({ children }) => {
     if (!ws || ws.readyState !== WebSocket.OPEN) return;
     
     const deviceInfo = {
-      type: 'device_info',
       device_name: `Web Browser (${navigator.userAgent.split(' ')[0]})`,
       device_type: 'web',
       device_id: generateDeviceId()
@@ -88,25 +109,41 @@ export const SessionProvider = ({ children }) => {
       const message = JSON.parse(data);
       
       switch (message.type) {
+        case 'device_registered':
+          console.log('Device registered successfully');
+          break;
+          
         case 'devices_list':
           setActiveDevices(message.devices || []);
           break;
           
         case 'session_request':
-          // Add to pending requests
-          setPendingRequests(prev => [...prev, message]);
+          // Add to pending requests with proper structure
+          const newRequest = {
+            request_id: message.request_id,
+            session_id: message.session_id,
+            from_user: {
+              id: message.from_user_id,
+              name: message.from_device_name || 'Unknown Device'
+            },
+            device_name: message.from_device_name,
+            status: 'pending',
+            created_at: new Date().toISOString()
+          };
+          
+          setPendingRequests(prev => [...prev, newRequest]);
           
           // Show toast notification
           toast.custom((t) => (
             <div className="bg-white shadow-lg rounded-lg p-4 max-w-sm">
               <h3 className="font-bold mb-2">New Session Request</h3>
               <p className="text-gray-600 mb-3">
-                {message.device_name || 'A device'} is requesting a live session
+                {message.from_device_name || 'A device'} is requesting a live session
               </p>
               <div className="flex justify-end space-x-2">
                 <button 
                   onClick={() => {
-                    respondToSession(message.session_id, false);
+                    respondToSession(message.request_id, false);
                     toast.dismiss(t.id);
                   }}
                   className="px-3 py-1 border border-gray-300 rounded text-gray-700 hover:bg-gray-100"
@@ -115,7 +152,7 @@ export const SessionProvider = ({ children }) => {
                 </button>
                 <button 
                   onClick={() => {
-                    respondToSession(message.session_id, true);
+                    respondToSession(message.request_id, true);
                     toast.dismiss(t.id);
                   }}
                   className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
@@ -128,10 +165,7 @@ export const SessionProvider = ({ children }) => {
           break;
           
         case 'session_accepted':
-          // Notify that session was accepted
           toast.success('Session request accepted');
-          
-          // Initialize WebRTC connection
           initializeWebRTCSession(message.session_id, message.target_user_id);
           break;
           
@@ -162,18 +196,15 @@ export const SessionProvider = ({ children }) => {
     try {
       switch (message.signal_type) {
         case 'offer':
-          // Process offer and create answer
           const answer = await webrtcService.processOffer(message.signal);
           sendWebRTCSignal('answer', message.session_id, message.sender_id, answer);
           break;
           
         case 'answer':
-          // Process answer
           await webrtcService.processAnswer(message.signal);
           break;
           
         case 'ice_candidate':
-          // Add ICE candidate
           await webrtcService.addIceCandidate(message.signal);
           break;
           
@@ -199,19 +230,16 @@ export const SessionProvider = ({ children }) => {
     webSocket.send(JSON.stringify(message));
   };
   
-  // Initialize WebRTC for a session
   const initializeWebRTCSession = async (sessionId, targetUserId) => {
     try {
-      // Initialize WebRTC service
       await webrtcService.initialize();
       
-      // Set up callbacks
       webrtcService.setCallbacks({
         onIceCandidate: (candidate) => {
           sendWebRTCSignal('ice_candidate', sessionId, targetUserId, candidate);
         },
         onTrack: (stream) => {
-          // Handle incoming stream (will be managed by the LiveSession component)
+          // Handle incoming stream
         },
         onDataChannelMessage: (data) => {
           // Handle incoming data channel messages
@@ -224,16 +252,12 @@ export const SessionProvider = ({ children }) => {
         }
       });
       
-      // Get local media stream
       const localStream = await webrtcService.getUserMedia();
-      
-      // Create and send offer
       const offer = await webrtcService.createOffer();
       sendWebRTCSignal('offer', sessionId, targetUserId, offer);
       
-      // Set active session
       setActiveSession({
-        id: sessionId,
+        session_id: sessionId,
         targetUserId,
         startTime: new Date(),
         status: 'connecting'
@@ -249,10 +273,8 @@ export const SessionProvider = ({ children }) => {
   const requestSession = async (deviceId) => {
     try {
       const response = await sessionApi.requestSession(deviceId);
-      
       toast.success('Session request sent');
-      
-      // The session will be established when the other device accepts
+      loadSessionData(); // Refresh data
       return response.data;
     } catch (error) {
       console.error('Failed to request session:', error);
@@ -262,19 +284,20 @@ export const SessionProvider = ({ children }) => {
   };
   
   // Respond to a session request
-  const respondToSession = async (sessionId, accepted) => {
+  const respondToSession = async (requestId, accepted) => {
     try {
-      await sessionApi.respondToSession(sessionId, accepted);
+      await sessionApi.respondToSession(requestId, accepted);
       
       // Remove from pending requests
-      setPendingRequests(prev => prev.filter(req => req.session_id !== sessionId));
+      setPendingRequests(prev => prev.filter(req => req.request_id !== requestId));
       
       if (accepted) {
-        // Session will be initialized when WebRTC signals are exchanged
         toast.success('Session accepted');
       } else {
         toast.info('Session declined');
       }
+      
+      loadSessionData(); // Refresh data
     } catch (error) {
       console.error('Failed to respond to session:', error);
       toast.error('Failed to process session response');
@@ -283,17 +306,18 @@ export const SessionProvider = ({ children }) => {
   };
   
   // End current session
-  const endCurrentSession = async () => {
+  const endCurrentSession = async (sessionId = null) => {
     try {
-      if (activeSession) {
-        // Notify server
-        await sessionApi.endSession(activeSession.id);
-        
-        // Clean up WebRTC
+      const targetSessionId = sessionId || activeSession?.session_id;
+      if (targetSessionId) {
+        await sessionApi.endSession(targetSessionId);
         webrtcService.disconnect();
         
-        // Update state
-        setActiveSession(null);
+        if (!sessionId) {
+          setActiveSession(null);
+        }
+        
+        loadSessionData(); // Refresh data
       }
     } catch (error) {
       console.error('Failed to end session:', error);
@@ -305,19 +329,16 @@ export const SessionProvider = ({ children }) => {
     if (user) {
       connectWebSocket();
     } else {
-      // Disconnect if user logs out
       if (webSocket) {
         webSocket.close();
         setWebSocket(null);
         setConnected(false);
       }
       
-      // Clean up WebRTC
       webrtcService.disconnect();
       setActiveSession(null);
     }
     
-    // Cleanup on unmount
     return () => {
       if (reconnectTimeoutRef.current) {
         clearTimeout(reconnectTimeoutRef.current);
@@ -331,16 +352,18 @@ export const SessionProvider = ({ children }) => {
     };
   }, [user]);
   
-  // Context value
   const value = {
     connected,
     activeDevices,
     pendingRequests,
     activeSession,
+    activeSessions,
+    endedSessions,
     requestSession,
     respondToSession,
     endSession: endCurrentSession,
-    webrtcService
+    webrtcService,
+    loadSessionData
   };
   
   return (

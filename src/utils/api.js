@@ -430,24 +430,35 @@ export const sessionApi = {
   requestSession: (deviceId) => {
     return apiPost({
       url: '/session/request',
-      payload: { device_id: deviceId },
+      payload: { target_device_id: deviceId },
       auth: true
     });
   },
 
   /**
    * Respond to a session request
-   * @param {string} sessionId - Session ID
+   * @param {string} requestId - Request ID
    * @param {boolean} accepted - Whether the request was accepted
    */
-  respondToSession: (sessionId, accepted) => {
+
+  respondToSession: (requestId, accepted) => {
+    console.log("request-id:", requestId)
     return apiPost({
       url: '/session/respond',
-      payload: { session_id: sessionId, accepted },
+      payload: {
+        request_id: requestId,
+        accepted: accepted
+      },
       auth: true
     });
   },
 
+  getSessionDetails: (sessionId) => {
+    return apiGet({
+      url: `/session/id/${sessionId}`,
+      auth: true
+    });
+  },
   /**
    * End an active session
    * @param {string} sessionId - Session ID

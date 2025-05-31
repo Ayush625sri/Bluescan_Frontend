@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 const Footer = () => {
   return (
     <footer className="bg-gray-800 text-white py-8 mt-auto">
-      <div className="container mx-auto px-6">
+      {/* <div className="container mx-auto px-6">
         <div className="grid grid-cols-4 gap-8">
           <div>
             <h3 className="text-lg font-semibold mb-4">About Bluescan</h3>
@@ -63,12 +63,12 @@ const Footer = () => {
             </ul>
           </div>
         </div>
-        <div className="mt-8 border-t border-gray-700 pt-8 text-center text-gray-400">
+      </div> */}
+        <div className="mt-0 border- border-gray-700 pt- text-center text-gray-400">
           <p>
             &copy; {new Date().getFullYear()} Bluescan. All rights reserved.
           </p>
         </div>
-      </div>
     </footer>
   );
 };

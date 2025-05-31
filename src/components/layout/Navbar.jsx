@@ -44,13 +44,13 @@ const Navbar = () => {
                 <BarChart2 className="h-5 w-5 mr-1" />
                 Analysis
               </Link>
-              <Link
+              {/* <Link
                 to="/settings"
                 className="flex items-center px-3 py-2 rounded-md text-gray-700 hover:text-blue-600"
               >
                 <Settings className="h-5 w-5 mr-1" />
                 Settings
-              </Link>
+              </Link> */}
               <Link
                 to="/profile"
                 className="flex items-center px-3 py-2 rounded-md text-gray-700 hover:text-blue-600"
@@ -58,13 +58,12 @@ const Navbar = () => {
                 <User className="h-5 w-5 mr-1" />
                 {user.full_name?.split(' ')[0] || 'Profile'}
               </Link>
-              <button
+              {/* <button
                 onClick={handleLogout}
                 className="flex items-center px-3 py-2 rounded-md text-gray-700 hover:text-red-600 transition duration-150"
               >
                 <LogOut className="h-5 w-5 mr-1" />
-                Logout
-              </button>
+              </button> */}
               {user && (
                 <div className="ml-4 border-l pl-4">
                   <SessionStatus />

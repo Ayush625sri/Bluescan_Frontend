@@ -1,46 +1,76 @@
+// src/components/analysis/AnalysisResults.jsx
 import { useState, useEffect } from 'react';
 import { BarChart2, Droplet, Wind, ThermometerSun } from 'lucide-react';
 
-const AnalysisResults = ({ data }) => {
-  const [results, setResults] = useState({
-    plasticDensity: 0,
-    waterQuality: 0,
+const AnalysisResults = ({ data = [] }) => {
+  const [aggregatedResults, setAggregatedResults] = useState({
+    averageWaterQuality: 0,
+    totalAnalyses: 0,
     pollutantTypes: [],
     confidenceScore: 0
   });
 
   useEffect(() => {
-    if (data) {
-      setResults(data);
+    if (data && data.length > 0) {
+      const avgQuality = data.reduce((sum, item) => sum + item.water_quality.overall_score, 0) / data.length;
+      const avgConfidence = data.reduce((sum, item) => sum + item.analysis_confidence, 0) / data.length;
+      
+      const pollutants = [];
+      data.forEach(item => {
+        if (item?.pollution_detected?.microplastics.detected) {
+          pollutants.push({ name: 'Microplastics', severity: 'high', concentration: item?.pollution_detected?.microplastics.concentration });
+        }
+        if (item?.pollution_detected?.chemical_pollutants.detected) {
+          pollutants.push({ name: 'Chemical Pollutants', severity: item?.pollution_detected?.chemical_pollutants.severity, concentration: 50 });
+        }
+      });
+
+      setAggregatedResults({
+        averageWaterQuality: Math.round(avgQuality),
+        totalAnalyses: data.length,
+        pollutantTypes: pollutants,
+        confidenceScore: Math.round(avgConfidence)
+      });
     }
   }, [data]);
 
   const metrics = [
     {
-      title: "Plastic Density",
-      value: `${results.plasticDensity || 0}%`,
-      icon: <BarChart2 className="w-6 h-6 text-blue-500" />,
+      title: "Average Water Quality",
+      value: `${aggregatedResults.averageWaterQuality}%`,
+      icon: <Droplet className="w-6 h-6 text-blue-500" />,
       color: "bg-blue-50"
     },
     {
-      title: "Water Quality",
-      value: `${results.waterQuality || 0}%`,
-      icon: <Droplet className="w-6 h-6 text-green-500" />,
+      title: "Total Analyses",
+      value: aggregatedResults.totalAnalyses,
+      icon: <BarChart2 className="w-6 h-6 text-green-500" />,
       color: "bg-green-50"
     },
     {
-      title: "Pollutant Types",
-      value: results.pollutantTypes?.length || 0,
+      title: "Pollutants Found",
+      value: aggregatedResults.pollutantTypes.length,
       icon: <Wind className="w-6 h-6 text-purple-500" />,
       color: "bg-purple-50"
     },
-    {
-      title: "Confidence Score",
-      value: `${results.confidenceScore || 0}%`,
-      icon: <ThermometerSun className="w-6 h-6 text-orange-500" />,
-      color: "bg-orange-50"
-    }
+    // {
+    //   title: "Avg Confidence",
+    //   value: `${aggregatedResults.confidenceScore}%`,
+    //   icon: <ThermometerSun className="w-6 h-6 text-orange-500" />,
+    //   color: "bg-orange-50"
+    // }
   ];
+
+  if (data.length === 0) {
+    return (
+      <div className="bg-white rounded-lg shadow-lg p-6">
+        <h2 className="text-2xl font-bold mb-6">Analysis Results</h2>
+        <div className="text-center py-8">
+          <p className="text-gray-500">No analyses performed yet. Upload and analyze images to see results.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">
@@ -59,26 +89,30 @@ const AnalysisResults = ({ data }) => {
         ))}
       </div>
 
-      {/* Detailed Analysis */}
-      <div className="space-y-6">
-        {results.pollutantTypes?.map((pollutant, index) => (
-          <div key={index} className="border rounded-lg p-4">
+      {/* Individual Analysis Results */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Individual Analysis Results</h3>
+        {data.map((analysis, index) => (
+          <div key={analysis.id} className="border rounded-lg p-4">
             <div className="flex justify-between items-center mb-2">
-              <h3 className="font-semibold text-lg">{pollutant.name}</h3>
-              <span className={`px-3 py-1 rounded-full text-sm ${
-                pollutant.severity === 'high' ? 'bg-red-100 text-red-800' :
-                pollutant.severity === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                'bg-green-100 text-green-800'
-              }`}>
-                {pollutant.severity}
+              <h4 className="font-medium">Analysis #{index + 1}</h4>
+              <span className="text-sm text-gray-500">
+                {new Date(analysis.timestamp).toLocaleString()}
               </span>
             </div>
-            <p className="text-gray-600 mb-2">{pollutant.description}</p>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
-                className="bg-blue-600 h-2 rounded-full"
-                style={{ width: `${pollutant.concentration}%` }}
-              />
+            <div className="grid grid-cols-3 gap-4 text-sm">
+              <div>
+                <span className="text-gray-600">Water Quality:</span>
+                <span className="font-medium ml-2">{analysis.water_quality.overall_score}%</span>
+              </div>
+              <div>
+                <span className="text-gray-600">pH Level:</span>
+                <span className="font-medium ml-2">{analysis.water_quality.ph_level}</span>
+              </div>
+              <div>
+                <span className="text-gray-600">Turbidity:</span>
+                <span className="font-medium ml-2">{analysis.water_quality.turbidity} NTU</span>
+              </div>
             </div>
           </div>
         ))}
@@ -87,4 +121,4 @@ const AnalysisResults = ({ data }) => {
   );
 };
 
-export default AnalysisResults
+export default AnalysisResults;

@@ -105,58 +105,11 @@ const clearAuthData = () => {
   document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
 };
 
-  // Login function
-  // const login = async (credentials, navigate) => {
-  //   setLoading(true);
-  //   try {
-  //     console.log("Attempting login with:", credentials.email);
-  //     const response = await authApi.login(credentials);
-  //     console.log("Login response:", response.data);
-
-  //     // Store token
-  //     localStorage.setItem('token', response.data.access_token);
-  //     localStorage.setItem('token_type', response.data.token_type);
-
-  //     // Now fetch the user profile
-  //     const userResponse = await authApi.getProfile();
-  //     console.log("User profile response:", userResponse.data);
-
-  //     // Store userData with token
-  //     const userData = {
-  //       ...userResponse.data,
-  //       _token: response.data.access_token
-  //     };
-
-  //     localStorage.setItem('userData', JSON.stringify(userData));
-
-  //     // Set user from the profile response
-  //     setUser(userResponse.data);
-
-  //     // Show success toast
-  //     toast.success('Successfully logged in!');
-
-  //     // Redirect to dashboard after successful login
-  //     if (navigate) {
-  //       console.log("Navigating to dashboard");
-  //       navigate('/dashboard');
-  //     }
-
-  //     return userResponse.data;
-  //   } catch (error) {
-  //     console.error("Login error:", error);
-  //     const errorMessage = error.response?.data?.detail || 'Login failed. Please try again.';
-  //     setError(errorMessage);
-  //     toast.error(errorMessage);
-  //     throw new Error(errorMessage);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
   const login = async (credentials, navigate) => {
     setLoading(true);
     try {
       console.log("Attempting login with:", credentials.email);
+      localStorage.removeItem('bluescan_session_data')
       const response = await authApi.login(credentials);
       console.log("Login response:", response.data);
 
@@ -188,7 +141,7 @@ const clearAuthData = () => {
       // Redirect to dashboard after successful login
       if (navigate) {
         console.log("Navigating to dashboard");
-        navigate('/dashboard');
+        navigate('/sessions');
       }
 
       return userResponse.data;
